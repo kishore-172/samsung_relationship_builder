@@ -1,0 +1,53 @@
+Request Number,Requirement,SQL Code,Metadata,Schemas Used,Tables Used,Columns Used,Tags,Structured Relationships,Universal Relationships
+1,Identify users from Samsung Members app who viewed at least 3 unique help articles and submitted a support ticket within the same week in the past 60 days.,"SELECT 
+  u.user_id,
+  COUNT(DISTINCT ha.article_id) AS unique_articles_viewed,
+  COUNT(st.ticket_id) AS support_tickets
+FROM samsung_members_users u
+JOIN samsung_help_article_views ha ON u.user_id = ha.user_id
+JOIN samsung_support_tickets st ON u.user_id = st.user_id
+WHERE ha.view_date BETWEEN CURRENT_DATE - INTERVAL '60 days' AND CURRENT_DATE
+  AND st.created_at BETWEEN ha.view_date AND ha.view_date + INTERVAL '7 days'
+GROUP BY u.user_id
+HAVING COUNT(DISTINCT ha.article_id) >= 3 AND COUNT(st.ticket_id) >= 1;
+","Schemas Used: samsung_members, samsung_support | Tables Used: users, help_article_views, support_tickets | Joins: users.user_id = help_article_views.user_id, users.user_id = support_tickets.user_id | Filters: view_date within 60 days, ticket created within 7 days of article view | Metrics: Count of articles, Count of tickets | Grouping: user_id | Conditions: >=3 articles and >=1 ticket","ha, st, u","ha.article_id, ha.user_id, ha.view_date, st.created_at, st.ticket_id, st.user_id, u.user_id","ha.article_id, ha.user_id, ha.view_date, st.created_at, st.ticket_id, st.user_id, u.user_id",support,ha.article_id -> Columns: [article_id] | ha.user_id -> Columns: [user_id] | ha.view_date -> Columns: [view_date] | st.created_at -> Columns: [created_at] | st.ticket_id -> Columns: [ticket_id] | st.user_id -> Columns: [user_id] | u.user_id -> Columns: [user_id],samsung_members_users AS u -> u.user_id | samsung_members_users AS u -> u.user_id | samsung_support_tickets AS st -> st.ticket_id | samsung_members_users AS u -> u.user_id | samsung_help_article_views AS ha -> ha.user_id | samsung_members_users AS u -> u.user_id | samsung_support_tickets AS st -> st.user_id | samsung_help_article_views AS ha -> ha.article_id | samsung_help_article_views AS ha -> ha.view_date | samsung_support_tickets AS st -> st.created_at | samsung_help_article_views AS ha -> ha.view_date | samsung_help_article_views AS ha -> ha.view_date | samsung_support_tickets AS st -> st.ticket_id | samsung_help_article_views AS ha -> ha.article_id | Joins: u.user_id = ha.user_id; u.user_id = st.user_id
+2,"For all users who have both Samsung Account and used the S Pen at least 5 times in the past month, list their device model, country, and avg session duration.","SELECT 
+  sa.user_id,
+  d.device_model,
+  sa.country,
+  AVG(s.session_duration_minutes) AS avg_session_duration
+FROM samsung_account_users sa
+JOIN s_pen_usage sp ON sa.user_id = sp.user_id
+JOIN samsung_devices d ON sa.device_id = d.device_id
+JOIN samsung_app_sessions s ON sa.user_id = s.user_id
+WHERE sp.usage_time >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY sa.user_id, d.device_model, sa.country
+HAVING COUNT(sp.usage_id) >= 5;
+","Schemas Used: samsung_accounts, samsung_device, samsung_activity | Tables Used: account_users, s_pen_usage, devices, app_sessions | Joins: account_users.user_id = s_pen_usage.user_id, account_users.device_id = devices.device_id, account_users.user_id = app_sessions.user_id | Filters: S Pen usage in last 30 days | Metrics: Avg session duration, Count of S Pen usage | Grouping: user_id, device_model, country | Conditions: >=5 S Pen usages","d, s, sa, sp","d.device_id, d.device_model, s.session_duration_minutes, s.user_id, sa.country, sa.device_id, sa.user_id, sp.usage_id, sp.usage_time, sp.user_id","d.device_id, d.device_model, s.session_duration_minutes, s.user_id, sa.country, sa.device_id, sa.user_id, sp.usage_id, sp.usage_time, sp.user_id",device_usage,d.device_id -> Columns: [device_id] | d.device_model -> Columns: [device_model] | s.session_duration_minutes -> Columns: [session_duration_minutes] | s.user_id -> Columns: [user_id] | sa.country -> Columns: [country] | sa.device_id -> Columns: [device_id] | sa.user_id -> Columns: [user_id] | sp.usage_id -> Columns: [usage_id] | sp.usage_time -> Columns: [usage_time] | sp.user_id -> Columns: [user_id],samsung_account_users AS sa -> sa.user_id | samsung_devices AS d -> d.device_model | samsung_account_users AS sa -> sa.country | samsung_account_users AS sa -> sa.user_id | samsung_devices AS d -> d.device_model | samsung_account_users AS sa -> sa.country | samsung_app_sessions AS s -> s.session_duration_minutes | samsung_account_users AS sa -> sa.user_id | s_pen_usage AS sp -> sp.user_id | samsung_account_users AS sa -> sa.device_id | samsung_devices AS d -> d.device_id | samsung_account_users AS sa -> sa.user_id | samsung_app_sessions AS s -> s.user_id | s_pen_usage AS sp -> sp.usage_time | s_pen_usage AS sp -> sp.usage_id | Joins: sa.user_id = sp.user_id; sa.device_id = d.device_id; sa.user_id = s.user_id
+3,"Get the top 3 most accessed Samsung cloud services per region in Q1 2025, along with access counts.","SELECT 
+  region,
+  service_name,
+  access_count
+FROM (
+  SELECT 
+    u.region,
+    cs.service_name,
+    COUNT(*) AS access_count,
+    RANK() OVER (PARTITION BY u.region ORDER BY COUNT(*) DESC) AS rank
+  FROM samsung_cloud_service_usage cs
+  JOIN samsung_account_users u ON cs.user_id = u.user_id
+  WHERE cs.access_time BETWEEN '2025-01-01' AND '2025-03-31'
+  GROUP BY u.region, cs.service_name
+) ranked_services
+WHERE rank <= 3;
+","Schemas Used: samsung_cloud, samsung_accounts | Tables Used: cloud_service_usage, account_users | Joins: cloud_service_usage.user_id = account_users.user_id | Filters: Q1 2025 | Metrics: Count of accesses | Grouping: region, service_name | Conditions: Top 3 services by region (RANK)","cs, u","cs.access_time, cs.service_name, cs.user_id, u.region, u.user_id","cs.access_time, cs.service_name, cs.user_id, u.region, u.user_id",cloud,cs.access_time -> Columns: [access_time] | cs.service_name -> Columns: [service_name] | cs.user_id -> Columns: [user_id] | u.region -> Columns: [region] | u.user_id -> Columns: [user_id],samsung_account_users AS u -> u.region | samsung_cloud_service_usage AS cs -> cs.service_name | samsung_account_users AS u -> u.region | samsung_cloud_service_usage AS cs -> cs.service_name | samsung_account_users AS u -> u.region | samsung_cloud_service_usage AS cs -> cs.user_id | samsung_account_users AS u -> u.user_id | samsung_cloud_service_usage AS cs -> cs.access_time | Joins: cs.user_id = u.user_id
+4,Track login-to-purchase funnel for Samsung Store App users who logged in and made a purchase within 48 hours in the past 45 days.,"SELECT 
+  l.user_id,
+  MIN(l.login_time) AS first_login,
+  MIN(p.purchase_time) AS first_purchase
+FROM samsung_store_logins l
+JOIN samsung_store_purchases p 
+  ON l.user_id = p.user_id AND p.purchase_time BETWEEN l.login_time AND l.login_time + INTERVAL '48 hours'
+WHERE l.login_time >= CURRENT_DATE - INTERVAL '45 days'
+GROUP BY l.user_id;
+","Schemas Used: samsung_store, samsung_payments | Tables Used: logins, purchases, products, transactions | Joins: logins.user_id = purchases.user_id, purchases.product_id = products.product_id, purchases.payment_id = transactions.payment_id | Filters: logins in last 45 days, purchase within 48h of login | Metrics: First login, first purchase, product category, payment method | Grouping: user_id, product_category, payment_method | Conditions: login-to-purchase within 48 hours","l, p","l.login_time, l.user_id, p.purchase_time, p.user_id","l.login_time, l.user_id, p.purchase_time, p.user_id",funnel,l.login_time -> Columns: [login_time] | l.user_id -> Columns: [user_id] | p.purchase_time -> Columns: [purchase_time] | p.user_id -> Columns: [user_id],samsung_store_logins AS l -> l.user_id | samsung_store_logins AS l -> l.user_id | samsung_store_logins AS l -> l.login_time | samsung_store_purchases AS p -> p.purchase_time | samsung_store_logins AS l -> l.login_time | samsung_store_logins AS l -> l.user_id | samsung_store_purchases AS p -> p.user_id | samsung_store_purchases AS p -> p.purchase_time | samsung_store_logins AS l -> l.login_time | samsung_store_logins AS l -> l.login_time | Joins: l.user_id = p.user_id AND p.purchase_time BETWEEN l.login_time AND l.login_time + INTERVAL '48' HOURS

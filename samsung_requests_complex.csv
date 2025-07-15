@@ -1,0 +1,53 @@
+,Request Number,Requirement,SQL Code
+0,1,Identify users from Samsung Members app who viewed at least 3 unique help articles and submitted a support ticket within the same week in the past 60 days.,"SELECT 
+  u.user_id,
+  COUNT(DISTINCT ha.article_id) AS unique_articles_viewed,
+  COUNT(st.ticket_id) AS support_tickets
+FROM samsung_members_users u
+JOIN samsung_help_article_views ha ON u.user_id = ha.user_id
+JOIN samsung_support_tickets st ON u.user_id = st.user_id
+WHERE ha.view_date BETWEEN CURRENT_DATE - INTERVAL '60 days' AND CURRENT_DATE
+  AND st.created_at BETWEEN ha.view_date AND ha.view_date + INTERVAL '7 days'
+GROUP BY u.user_id
+HAVING COUNT(DISTINCT ha.article_id) >= 3 AND COUNT(st.ticket_id) >= 1;
+"
+1,2,"For all users who have both Samsung Account and used the S Pen at least 5 times in the past month, list their device model, country, and avg session duration.","SELECT 
+  sa.user_id,
+  d.device_model,
+  sa.country,
+  AVG(s.session_duration_minutes) AS avg_session_duration
+FROM samsung_account_users sa
+JOIN s_pen_usage sp ON sa.user_id = sp.user_id
+JOIN samsung_devices d ON sa.device_id = d.device_id
+JOIN samsung_app_sessions s ON sa.user_id = s.user_id
+WHERE sp.usage_time >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY sa.user_id, d.device_model, sa.country
+HAVING COUNT(sp.usage_id) >= 5;
+"
+2,3,"Get the top 3 most accessed Samsung cloud services per region in Q1 2025, along with access counts.","SELECT 
+  region,
+  service_name,
+  access_count
+FROM (
+  SELECT 
+    u.region,
+    cs.service_name,
+    COUNT(*) AS access_count,
+    RANK() OVER (PARTITION BY u.region ORDER BY COUNT(*) DESC) AS rank
+  FROM samsung_cloud_service_usage cs
+  JOIN samsung_account_users u ON cs.user_id = u.user_id
+  WHERE cs.access_time BETWEEN '2025-01-01' AND '2025-03-31'
+  GROUP BY u.region, cs.service_name
+) ranked_services
+WHERE rank <= 3;
+"
+3,4,Track login-to-purchase funnel for Samsung Store App users who logged in and made a purchase within 48 hours in the past 45 days.,"SELECT 
+  l.user_id,
+  MIN(l.login_time) AS first_login,
+  MIN(p.purchase_time) AS first_purchase
+FROM samsung_store_logins l
+JOIN samsung_store_purchases p 
+  ON l.user_id = p.user_id AND p.purchase_time BETWEEN l.login_time AND l.login_time + INTERVAL '48 hours'
+WHERE l.login_time >= CURRENT_DATE - INTERVAL '45 days'
+GROUP BY l.user_id;
+"
