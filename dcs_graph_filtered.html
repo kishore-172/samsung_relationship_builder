@@ -1,0 +1,309 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+<div style="margin: 10px; font-family: sans-serif;">
+  <label><b>Select DCS:</b></label><br>
+  <select id="dcsSelect" multiple size="4" onchange="highlightDCS()" style="min-width: 200px; margin-top: 5px;"></select>
+  <br><button onclick="resetHighlight()" style="margin-top: 10px;">Reset</button>
+</div>
+
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="DCS001">DCS001</option>
+                                
+                                    <option value="ecommerce">ecommerce</option>
+                                
+                                    <option value="customers">customers</option>
+                                
+                                    <option value="orders">orders</option>
+                                
+                                    <option value="customer_id">customer_id</option>
+                                
+                                    <option value="name">name</option>
+                                
+                                    <option value="order_id">order_id</option>
+                                
+                                    <option value="total_amount">total_amount</option>
+                                
+                                    <option value="order_date >= '2024-01-01'">order_date >= '2024-01-01'</option>
+                                
+                                    <option value="c.customer_id = o.customer_id">c.customer_id = o.customer_id</option>
+                                
+                                    <option value="inventory">inventory</option>
+                                
+                                    <option value="stock">stock</option>
+                                
+                                    <option value="warehouses">warehouses</option>
+                                
+                                    <option value="product_id">product_id</option>
+                                
+                                    <option value="warehouse_id">warehouse_id</option>
+                                
+                                    <option value="quantity">quantity</option>
+                                
+                                    <option value="location">location</option>
+                                
+                                    <option value="marketing">marketing</option>
+                                
+                                    <option value="campaigns">campaigns</option>
+                                
+                                    <option value="campaign_id">campaign_id</option>
+                                
+                                    <option value="start_date">start_date</option>
+                                
+                                    <option value="budget">budget</option>
+                                
+                                    <option value="start_date >= '2023-01-01'">start_date >= '2023-01-01'</option>
+                                
+                                    <option value="DCS002">DCS002</option>
+                                
+                                    <option value="hr">hr</option>
+                                
+                                    <option value="employees">employees</option>
+                                
+                                    <option value="departments">departments</option>
+                                
+                                    <option value="employee_id">employee_id</option>
+                                
+                                    <option value="salary">salary</option>
+                                
+                                    <option value="department_id">department_id</option>
+                                
+                                    <option value="department_name">department_name</option>
+                                
+                                    <option value="high_earners">high_earners</option>
+                                
+                                    <option value="salary > 100000">salary > 100000</option>
+                                
+                                    <option value="DCS003">DCS003</option>
+                                
+                                    <option value="finance">finance</option>
+                                
+                                    <option value="transactions">transactions</option>
+                                
+                                    <option value="accounts">accounts</option>
+                                
+                                    <option value="transaction_id">transaction_id</option>
+                                
+                                    <option value="account_id">account_id</option>
+                                
+                                    <option value="amount">amount</option>
+                                
+                                    <option value="account_type">account_type</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"group": "dcs", "id": "DCS001", "label": "DCS001", "properties": {"dcs_id": "DCS001"}, "shape": "box", "title": "DCS001 (dcs)"}, {"group": "other", "id": "ecommerce", "label": "ecommerce", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "ecommerce (other)"}, {"group": "table", "id": "customers", "label": "customers", "properties": {"dcs_id": "DCS001"}, "shape": "circle", "title": "customers (table)"}, {"group": "table", "id": "orders", "label": "orders", "properties": {"dcs_id": "DCS001"}, "shape": "circle", "title": "orders (table)"}, {"group": "column", "id": "customer_id", "label": "customer_id", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "customer_id (column)"}, {"group": "column", "id": "name", "label": "name", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "name (column)"}, {"group": "column", "id": "order_id", "label": "order_id", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "order_id (column)"}, {"group": "column", "id": "total_amount", "label": "total_amount", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "total_amount (column)"}, {"group": "filter", "id": "order_date \u003e= \u00272024-01-01\u0027", "label": "order_date \u003e= \u00272024-01-01\u0027", "properties": {"dcs_id": "DCS001"}, "shape": "star", "title": "order_date \u003e= \u00272024-01-01\u0027 (filter)"}, {"group": "join", "id": "c.customer_id = o.customer_id", "label": "c.customer_id = o.customer_id", "properties": {"dcs_id": "DCS001"}, "shape": "triangle", "title": "c.customer_id = o.customer_id (join)"}, {"group": "other", "id": "inventory", "label": "inventory", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "inventory (other)"}, {"group": "table", "id": "stock", "label": "stock", "properties": {"dcs_id": "DCS001"}, "shape": "circle", "title": "stock (table)"}, {"group": "table", "id": "warehouses", "label": "warehouses", "properties": {"dcs_id": "DCS001"}, "shape": "circle", "title": "warehouses (table)"}, {"group": "column", "id": "product_id", "label": "product_id", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "product_id (column)"}, {"group": "column", "id": "warehouse_id", "label": "warehouse_id", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "warehouse_id (column)"}, {"group": "column", "id": "quantity", "label": "quantity", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "quantity (column)"}, {"group": "column", "id": "location", "label": "location", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "location (column)"}, {"group": "other", "id": "marketing", "label": "marketing", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "marketing (other)"}, {"group": "table", "id": "campaigns", "label": "campaigns", "properties": {"dcs_id": "DCS001"}, "shape": "circle", "title": "campaigns (table)"}, {"group": "column", "id": "campaign_id", "label": "campaign_id", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "campaign_id (column)"}, {"group": "column", "id": "start_date", "label": "start_date", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "start_date (column)"}, {"group": "column", "id": "budget", "label": "budget", "properties": {"dcs_id": "DCS001"}, "shape": "dot", "title": "budget (column)"}, {"group": "filter", "id": "start_date \u003e= \u00272023-01-01\u0027", "label": "start_date \u003e= \u00272023-01-01\u0027", "properties": {"dcs_id": "DCS001"}, "shape": "star", "title": "start_date \u003e= \u00272023-01-01\u0027 (filter)"}, {"group": "dcs", "id": "DCS002", "label": "DCS002", "properties": {"dcs_id": "DCS002"}, "shape": "box", "title": "DCS002 (dcs)"}, {"group": "other", "id": "hr", "label": "hr", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "hr (other)"}, {"group": "source_table", "id": "employees", "label": "employees", "properties": {"dcs_id": "DCS002"}, "shape": "hexagon", "title": "employees (source_table)"}, {"group": "table", "id": "departments", "label": "departments", "properties": {"dcs_id": "DCS002"}, "shape": "circle", "title": "departments (table)"}, {"group": "column", "id": "employee_id", "label": "employee_id", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "employee_id (column)"}, {"group": "column", "id": "salary", "label": "salary", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "salary (column)"}, {"group": "column", "id": "department_id", "label": "department_id", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "department_id (column)"}, {"group": "column", "id": "department_name", "label": "department_name", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "department_name (column)"}, {"group": "other", "id": "high_earners", "label": "high_earners", "properties": {"dcs_id": "DCS002"}, "shape": "dot", "title": "high_earners (other)"}, {"group": "filter", "id": "salary \u003e 100000", "label": "salary \u003e 100000", "properties": {"dcs_id": "DCS002"}, "shape": "star", "title": "salary \u003e 100000 (filter)"}, {"group": "dcs", "id": "DCS003", "label": "DCS003", "properties": {"dcs_id": "DCS003"}, "shape": "box", "title": "DCS003 (dcs)"}, {"group": "other", "id": "finance", "label": "finance", "properties": {"dcs_id": "DCS003"}, "shape": "dot", "title": "finance (other)"}, {"group": "table", "id": "transactions", "label": "transactions", "properties": {"dcs_id": "DCS003"}, "shape": "circle", "title": "transactions (table)"}, {"group": "table", "id": "accounts", "label": "accounts", "properties": {"dcs_id": "DCS003"}, "shape": "circle", "title": "accounts (table)"}, {"group": "column", "id": "transaction_id", "label": "transaction_id", "properties": {"dcs_id": "DCS003"}, "shape": "dot", "title": "transaction_id (column)"}, {"group": "column", "id": "account_id", "label": "account_id", "properties": {"dcs_id": "DCS003"}, "shape": "dot", "title": "account_id (column)"}, {"group": "column", "id": "amount", "label": "amount", "properties": {"dcs_id": "DCS003"}, "shape": "dot", "title": "amount (column)"}, {"group": "column", "id": "account_type", "label": "account_type", "properties": {"dcs_id": "DCS003"}, "shape": "dot", "title": "account_type (column)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "ecommerce"}, {"arrows": "to", "from": "ecommerce", "label": "uses_table", "title": "uses_table", "to": "customers"}, {"arrows": "to", "from": "ecommerce", "label": "uses_table", "title": "uses_table", "to": "orders"}, {"arrows": "to", "from": "customers", "label": "uses_column", "title": "uses_column", "to": "customer_id"}, {"arrows": "to", "from": "customers", "label": "uses_column", "title": "uses_column", "to": "name"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "order_id"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "customer_id"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "total_amount"}, {"arrows": "to", "from": "orders", "label": "has_filter", "title": "has_filter", "to": "order_date \u003e= \u00272024-01-01\u0027"}, {"arrows": "to", "from": "orders", "label": "has_join", "title": "has_join", "to": "c.customer_id = o.customer_id"}, {"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "inventory"}, {"arrows": "to", "from": "inventory", "label": "uses_table", "title": "uses_table", "to": "stock"}, {"arrows": "to", "from": "inventory", "label": "uses_table", "title": "uses_table", "to": "warehouses"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "product_id"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "warehouse_id"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "quantity"}, {"arrows": "to", "from": "warehouses", "label": "uses_column", "title": "uses_column", "to": "warehouse_id"}, {"arrows": "to", "from": "warehouses", "label": "uses_column", "title": "uses_column", "to": "location"}, {"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "marketing"}, {"arrows": "to", "from": "marketing", "label": "uses_table", "title": "uses_table", "to": "campaigns"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "campaign_id"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "start_date"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "budget"}, {"arrows": "to", "from": "campaigns", "label": "has_filter", "title": "has_filter", "to": "start_date \u003e= \u00272023-01-01\u0027"}, {"arrows": "to", "from": "DCS002", "label": "uses_schema", "title": "uses_schema", "to": "hr"}, {"arrows": "to", "from": "hr", "label": "uses_table", "title": "uses_table", "to": "employees"}, {"arrows": "to", "from": "hr", "label": "uses_table", "title": "uses_table", "to": "departments"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "employee_id"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "name"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "salary"}, {"arrows": "to", "from": "departments", "label": "uses_column", "title": "uses_column", "to": "department_id"}, {"arrows": "to", "from": "departments", "label": "uses_column", "title": "uses_column", "to": "department_name"}, {"arrows": "to", "from": "DCS002", "label": "has_temp_table", "title": "has_temp_table", "to": "high_earners"}, {"arrows": "to", "from": "high_earners", "label": "derived_from", "title": "derived_from", "to": "employees"}, {"arrows": "to", "from": "high_earners", "label": "uses_column", "title": "uses_column", "to": "employee_id"}, {"arrows": "to", "from": "high_earners", "label": "uses_column", "title": "uses_column", "to": "salary"}, {"arrows": "to", "from": "high_earners", "label": "has_filter", "title": "has_filter", "to": "salary \u003e 100000"}, {"arrows": "to", "from": "DCS003", "label": "uses_schema", "title": "uses_schema", "to": "finance"}, {"arrows": "to", "from": "finance", "label": "uses_table", "title": "uses_table", "to": "transactions"}, {"arrows": "to", "from": "finance", "label": "uses_table", "title": "uses_table", "to": "accounts"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "transaction_id"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "account_id"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "amount"}, {"arrows": "to", "from": "accounts", "label": "uses_column", "title": "uses_column", "to": "account_id"}, {"arrows": "to", "from": "accounts", "label": "uses_column", "title": "uses_column", "to": "account_type"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"size": 16, "font": {"size": 14}}, "edges": {"arrows": {"to": {"enabled": true}}, "smooth": false, "color": {"inherit": true}}, "physics": {"barnesHut": {"gravitationalConstant": -9000, "springLength": 120, "springConstant": 0.05}, "minVelocity": 0.75}, "interaction": {"hover": true, "navigationButtons": true, "tooltipDelay": 200}, "manipulation": false};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+<script>
+window.addEventListener('load', function() {
+  var dcsList = `<option value="DCS001">DCS001</option>
+<option value="DCS002">DCS002</option>
+<option value="DCS003">DCS003</option>`;
+  document.getElementById("dcsSelect").innerHTML = dcsList;
+});
+</script>
+
+
+<script>
+function highlightDCS() {
+    var select = document.getElementById("dcsSelect");
+    var selected = Array.from(select.selectedOptions).map(o => o.value);
+
+    var allNodes = nodes.get();
+    var allEdges = edges.get();
+
+    var highlightNodes = new Set();
+    var highlightEdges = new Set();
+
+    function traverse(nodeId) {
+        highlightNodes.add(nodeId);
+        edges.get().forEach(e => {
+            if (e.from === nodeId && !highlightEdges.has(e.id)) {
+                highlightEdges.add(e.id || `${e.from}->${e.to}`);
+                highlightNodes.add(e.to);
+                traverse(e.to);
+            }
+        });
+    }
+
+    selected.forEach(dcs => traverse(dcs));
+
+    nodes.update(allNodes.map(n => {
+        return Object.assign({}, n, {
+            color: highlightNodes.has(n.id) ? undefined : 'rgba(200,200,200,0.3)',
+            font: { color: highlightNodes.has(n.id) ? '#000000' : '#aaaaaa' }
+        });
+    }));
+
+    edges.update(allEdges.map(e => {
+        return Object.assign({}, e, {
+            color: highlightEdges.has(e.id || `${e.from}->${e.to}`) ? undefined : 'rgba(180,180,180,0.2)'
+        });
+    }));
+}
+
+function resetHighlight() {
+    document.getElementById("dcsSelect").selectedIndex = -1;
+    nodes.update(nodes.get().map(n => Object.assign({}, n, {
+        color: undefined,
+        font: { color: '#000000' }
+    })));
+    edges.update(edges.get().map(e => Object.assign({}, e, {
+        color: undefined
+    })));
+}
+</script>
+
+</body>
+</html>

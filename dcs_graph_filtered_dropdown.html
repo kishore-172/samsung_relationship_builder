@@ -1,0 +1,196 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<div style="position:absolute;top:10px;left:10px;z-index:9999;background:#fff;padding:10px;border-radius:6px;border:1px solid #ccc;font-family:sans-serif">
+  <label><strong>DCS Filter:</strong></label><br>
+  <select id="dcsFilter" style="width:200px;">
+    <option value="">-- Show All --</option>
+    <option value="DCS001">DCS001</option><option value="DCS002">DCS002</option><option value="DCS003">DCS003</option>
+  </select>
+  <br><br><strong>Legend:</strong><br>
+  ▢ DCS<br>◯ Table<br>⬭ Schema<br>• Column<br>★ Filter<br>🔺 Join<br>🗄 Temp Table<br>⬡ Derived
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#dcsFilter').select2();
+  $('#dcsFilter').on('change', function() {
+    const selected = $(this).val();
+    const allNodes = nodes.get();
+    const allEdges = edges.get();
+
+    if (!selected) {
+      nodes.update(allNodes.map(n => { return {id: n.id, hidden: false}; }));
+      edges.update(allEdges.map(e => { return {id: e.id, hidden: false}; }));
+      return;
+    }
+
+    const keepIds = new Set(allNodes.filter(n =>
+      (n.title || "").includes(`[DCS=${selected}]`)
+    ).map(n => n.id));
+
+    const keepEdges = allEdges.filter(e => keepIds.has(e.from) && keepIds.has(e.to));
+
+    nodes.update(allNodes.map(n => { return {id: n.id, hidden: !keepIds.has(n.id)}; }));
+    edges.update(allEdges.map(e => { return {id: e.id, hidden: !keepEdges.find(k => k.id === e.id)}; }));
+  });
+});
+</script>
+
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"group": "dcs", "id": "DCS001", "label": "DCS001", "shape": "box", "title": "DCS001 [DCS=DCS001] (dcs)"}, {"group": "other", "id": "ecommerce", "label": "ecommerce", "shape": "dot", "title": "ecommerce [DCS=DCS001] (other)"}, {"group": "table", "id": "customers", "label": "customers", "shape": "circle", "title": "customers [DCS=DCS001] (table)"}, {"group": "table", "id": "orders", "label": "orders", "shape": "circle", "title": "orders [DCS=DCS001] (table)"}, {"group": "column", "id": "customer_id", "label": "customer_id", "shape": "dot", "title": "customer_id [DCS=DCS001] (column)"}, {"group": "column", "id": "name", "label": "name", "shape": "dot", "title": "name [DCS=DCS002] (column)"}, {"group": "column", "id": "order_id", "label": "order_id", "shape": "dot", "title": "order_id [DCS=DCS001] (column)"}, {"group": "column", "id": "total_amount", "label": "total_amount", "shape": "dot", "title": "total_amount [DCS=DCS001] (column)"}, {"group": "filter", "id": "order_date \u003e= \u00272024-01-01\u0027", "label": "order_date \u003e= \u00272024-01-01\u0027", "shape": "star", "title": "order_date \u003e= \u00272024-01-01\u0027 [DCS=DCS001] (filter)"}, {"group": "join", "id": "c.customer_id = o.customer_id", "label": "c.customer_id = o.customer_id", "shape": "triangle", "title": "c.customer_id = o.customer_id [DCS=DCS001] (join)"}, {"group": "other", "id": "inventory", "label": "inventory", "shape": "dot", "title": "inventory [DCS=DCS001] (other)"}, {"group": "table", "id": "stock", "label": "stock", "shape": "circle", "title": "stock [DCS=DCS001] (table)"}, {"group": "table", "id": "warehouses", "label": "warehouses", "shape": "circle", "title": "warehouses [DCS=DCS001] (table)"}, {"group": "column", "id": "product_id", "label": "product_id", "shape": "dot", "title": "product_id [DCS=DCS001] (column)"}, {"group": "column", "id": "warehouse_id", "label": "warehouse_id", "shape": "dot", "title": "warehouse_id [DCS=DCS001] (column)"}, {"group": "column", "id": "quantity", "label": "quantity", "shape": "dot", "title": "quantity [DCS=DCS001] (column)"}, {"group": "column", "id": "location", "label": "location", "shape": "dot", "title": "location [DCS=DCS001] (column)"}, {"group": "other", "id": "marketing", "label": "marketing", "shape": "dot", "title": "marketing [DCS=DCS001] (other)"}, {"group": "table", "id": "campaigns", "label": "campaigns", "shape": "circle", "title": "campaigns [DCS=DCS001] (table)"}, {"group": "column", "id": "campaign_id", "label": "campaign_id", "shape": "dot", "title": "campaign_id [DCS=DCS001] (column)"}, {"group": "column", "id": "start_date", "label": "start_date", "shape": "dot", "title": "start_date [DCS=DCS001] (column)"}, {"group": "column", "id": "budget", "label": "budget", "shape": "dot", "title": "budget [DCS=DCS001] (column)"}, {"group": "filter", "id": "start_date \u003e= \u00272023-01-01\u0027", "label": "start_date \u003e= \u00272023-01-01\u0027", "shape": "star", "title": "start_date \u003e= \u00272023-01-01\u0027 [DCS=DCS001] (filter)"}, {"group": "dcs", "id": "DCS002", "label": "DCS002", "shape": "box", "title": "DCS002 [DCS=DCS002] (dcs)"}, {"group": "other", "id": "hr", "label": "hr", "shape": "dot", "title": "hr [DCS=DCS002] (other)"}, {"group": "source_table", "id": "employees", "label": "employees", "shape": "hexagon", "title": "employees [DCS=DCS002] (source_table)"}, {"group": "table", "id": "departments", "label": "departments", "shape": "circle", "title": "departments [DCS=DCS002] (table)"}, {"group": "column", "id": "employee_id", "label": "employee_id", "shape": "dot", "title": "employee_id [DCS=DCS002] (column)"}, {"group": "column", "id": "salary", "label": "salary", "shape": "dot", "title": "salary [DCS=DCS002] (column)"}, {"group": "column", "id": "department_id", "label": "department_id", "shape": "dot", "title": "department_id [DCS=DCS002] (column)"}, {"group": "column", "id": "department_name", "label": "department_name", "shape": "dot", "title": "department_name [DCS=DCS002] (column)"}, {"group": "other", "id": "high_earners", "label": "high_earners", "shape": "dot", "title": "high_earners [DCS=DCS002] (other)"}, {"group": "filter", "id": "salary \u003e 100000", "label": "salary \u003e 100000", "shape": "star", "title": "salary \u003e 100000 [DCS=DCS002] (filter)"}, {"group": "dcs", "id": "DCS003", "label": "DCS003", "shape": "box", "title": "DCS003 [DCS=DCS003] (dcs)"}, {"group": "other", "id": "finance", "label": "finance", "shape": "dot", "title": "finance [DCS=DCS003] (other)"}, {"group": "table", "id": "transactions", "label": "transactions", "shape": "circle", "title": "transactions [DCS=DCS003] (table)"}, {"group": "table", "id": "accounts", "label": "accounts", "shape": "circle", "title": "accounts [DCS=DCS003] (table)"}, {"group": "column", "id": "transaction_id", "label": "transaction_id", "shape": "dot", "title": "transaction_id [DCS=DCS003] (column)"}, {"group": "column", "id": "account_id", "label": "account_id", "shape": "dot", "title": "account_id [DCS=DCS003] (column)"}, {"group": "column", "id": "amount", "label": "amount", "shape": "dot", "title": "amount [DCS=DCS003] (column)"}, {"group": "column", "id": "account_type", "label": "account_type", "shape": "dot", "title": "account_type [DCS=DCS003] (column)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "ecommerce"}, {"arrows": "to", "from": "ecommerce", "label": "uses_table", "title": "uses_table", "to": "customers"}, {"arrows": "to", "from": "ecommerce", "label": "uses_table", "title": "uses_table", "to": "orders"}, {"arrows": "to", "from": "customers", "label": "uses_column", "title": "uses_column", "to": "customer_id"}, {"arrows": "to", "from": "customers", "label": "uses_column", "title": "uses_column", "to": "name"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "order_id"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "customer_id"}, {"arrows": "to", "from": "orders", "label": "uses_column", "title": "uses_column", "to": "total_amount"}, {"arrows": "to", "from": "orders", "label": "has_filter", "title": "has_filter", "to": "order_date \u003e= \u00272024-01-01\u0027"}, {"arrows": "to", "from": "orders", "label": "has_join", "title": "has_join", "to": "c.customer_id = o.customer_id"}, {"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "inventory"}, {"arrows": "to", "from": "inventory", "label": "uses_table", "title": "uses_table", "to": "stock"}, {"arrows": "to", "from": "inventory", "label": "uses_table", "title": "uses_table", "to": "warehouses"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "product_id"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "warehouse_id"}, {"arrows": "to", "from": "stock", "label": "uses_column", "title": "uses_column", "to": "quantity"}, {"arrows": "to", "from": "warehouses", "label": "uses_column", "title": "uses_column", "to": "warehouse_id"}, {"arrows": "to", "from": "warehouses", "label": "uses_column", "title": "uses_column", "to": "location"}, {"arrows": "to", "from": "DCS001", "label": "uses_schema", "title": "uses_schema", "to": "marketing"}, {"arrows": "to", "from": "marketing", "label": "uses_table", "title": "uses_table", "to": "campaigns"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "campaign_id"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "start_date"}, {"arrows": "to", "from": "campaigns", "label": "uses_column", "title": "uses_column", "to": "budget"}, {"arrows": "to", "from": "campaigns", "label": "has_filter", "title": "has_filter", "to": "start_date \u003e= \u00272023-01-01\u0027"}, {"arrows": "to", "from": "DCS002", "label": "uses_schema", "title": "uses_schema", "to": "hr"}, {"arrows": "to", "from": "hr", "label": "uses_table", "title": "uses_table", "to": "employees"}, {"arrows": "to", "from": "hr", "label": "uses_table", "title": "uses_table", "to": "departments"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "employee_id"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "name"}, {"arrows": "to", "from": "employees", "label": "uses_column", "title": "uses_column", "to": "salary"}, {"arrows": "to", "from": "departments", "label": "uses_column", "title": "uses_column", "to": "department_id"}, {"arrows": "to", "from": "departments", "label": "uses_column", "title": "uses_column", "to": "department_name"}, {"arrows": "to", "from": "DCS002", "label": "has_temp_table", "title": "has_temp_table", "to": "high_earners"}, {"arrows": "to", "from": "high_earners", "label": "derived_from", "title": "derived_from", "to": "employees"}, {"arrows": "to", "from": "high_earners", "label": "uses_column", "title": "uses_column", "to": "employee_id"}, {"arrows": "to", "from": "high_earners", "label": "uses_column", "title": "uses_column", "to": "salary"}, {"arrows": "to", "from": "high_earners", "label": "has_filter", "title": "has_filter", "to": "salary \u003e 100000"}, {"arrows": "to", "from": "DCS003", "label": "uses_schema", "title": "uses_schema", "to": "finance"}, {"arrows": "to", "from": "finance", "label": "uses_table", "title": "uses_table", "to": "transactions"}, {"arrows": "to", "from": "finance", "label": "uses_table", "title": "uses_table", "to": "accounts"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "transaction_id"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "account_id"}, {"arrows": "to", "from": "transactions", "label": "uses_column", "title": "uses_column", "to": "amount"}, {"arrows": "to", "from": "accounts", "label": "uses_column", "title": "uses_column", "to": "account_id"}, {"arrows": "to", "from": "accounts", "label": "uses_column", "title": "uses_column", "to": "account_type"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
